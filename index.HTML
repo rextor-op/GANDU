@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phantom Interface - ANXT AI V1</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        /* General Styling */
+        body {
+            background: linear-gradient(135deg, #0a0f1e, #1c1e3a);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Container Design */
+        .container {
+            width: 85%;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+            border-radius: 15px;
+            background: linear-gradient(135deg, rgba(0, 255, 170, 0.3), rgba(0, 255, 170, 0.1));
+            border: 2px solid rgba(0, 255, 170, 0.8);
+            box-shadow: 0px 0px 15px rgba(0, 255, 170, 0.5);
+            transition: 0.3s;
+        }
+
+        .container:hover {
+            transform: scale(1.02);
+            box-shadow: 0px 0px 25px rgba(0, 255, 170, 0.8);
+        }
+
+        /* Title Bar */
+        #title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00ffaa;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0px 0px 15px rgba(0, 255, 170, 0.8);
+        }
+
+        /* Period Section */
+        #period-label {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        #textview1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff0077;
+            text-shadow: 0px 0px 15px rgba(255, 0, 119, 0.8);
+        }
+
+        /* Big/Small Result Section */
+        #result-label {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        #result-view {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ffaa;
+            text-shadow: 0px 0px 15px rgba(0, 255, 170, 0.8);
+        }
+
+        /* ListView Container */
+        .list-container {
+            width: 85%;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(0, 255, 170, 0.3), rgba(0, 255, 170, 0.1));
+            border: 2px solid rgba(0, 255, 170, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0px 0px 15px rgba(0, 255, 170, 0.5);
+        }
+
+        /* List Item */
+        .list-item {
+            font-size: 16px;
+            color: #ffffff;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(0, 255, 170, 0.5);
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Title Section -->
+    <div class="container">
+        <div id="title">PHANTOM AI V1</div>
+    </div>
+
+    <!-- Period Section -->
+    <div class="container">
+        <div id="period-label">PERIOD</div>
+        <div id="textview1">Loading...</div>
+    </div>
+
+    <!-- Big/Small Result Section -->
+    <div class="container">
+        <div id="result-label">Prediction Result:</div>
+        <div id="result-view">Loading...</div>
+    </div>
+
+    <!-- ListView Section -->
+    <div class="list-container" id="listView">
+        <div class="list-item">Previous results will appear here...</div>
+    </div>
+
+    <script>
+        let lastPeriod = ""; // To store the previous period value
+        let lastResult = ""; // To store the last calculated result
+
+        function updatePeriod() {
+            let now = new Date();
+            let options = { timeZone: 'Asia/Kolkata' };
+            let currentDate = new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', ...options }).format(now).replace(/\//g, '');
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            let startHour = 5, startMinute = 29;
+            let elapsedMinutes = (hours * 60 + minutes) - (startHour * 60 + startMinute);
+            if (elapsedMinutes < 0) elapsedMinutes = 0;
+            let formattedMinutes = elapsedMinutes.toString().padStart(4, '0');
+            let periodNumber = "100001" + formattedMinutes;
+            let fullPeriod = currentDate + periodNumber;
+
+            // Check if the period has changed
+            if (fullPeriod !== lastPeriod) {
+                lastPeriod = fullPeriod; // Update stored period
+
+                // New Prediction System
+                let calculationTexts = ["BIG", "SMALL", "SMALL", "SMALL", "BIG", "SMALL", "BIG", "BIG", "SMALL", "BIG"];
+                let calculationIndex = Math.floor(Math.random() * calculationTexts.length);
+
+                let selectedText = calculationTexts[calculationIndex];
+
+                // Store last result without any numerical value
+                lastResult = selectedText;
+
+                // Add to ListView
+                let listView = document.getElementById("listView");
+                let newItem = document.createElement("div");
+                newItem.classList.add("list-item");
+                newItem.innerText = `${fullPeriod} → Result: ${selectedText}`;
+
+                // Insert new result at the top of the list
+                listView.insertBefore(newItem, listView.firstChild);
+
+                // Limit the list to 10 items
+                if (listView.children.length > 10) {
+                    listView.removeChild(listView.lastChild);
+                }
+            }
+
+            // Update PERIOD Section
+            document.getElementById("textview1").innerText = fullPeriod;
+
+            // Update Big/Small Result (only if period changed)
+            document.getElementById("result-view").innerText = lastResult;
+        }
+
+        // Update every second
+        setInterval(updatePeriod, 1000);
+        updatePeriod();
+    </script>
+
+</body>
+</html>
